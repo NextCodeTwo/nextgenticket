@@ -1,0 +1,12 @@
+node_modules
+package-lock.json
+/build
+.prettierrc
+.vscode
+wrangler.json
+/public/assets/img/avatar
+/public/assets/img/brand
+/public/assets/img/logo
+.wrangler
+.DS_Store
+/public/assets/img/favicon
