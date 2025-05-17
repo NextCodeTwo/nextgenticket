@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next Code Two - Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-blue-600 p-4">
+        <div class="max-w-7xl mx-auto px-4 flex items-center justify-between">
+            <a href="#" class="text-white text-2xl font-bold">Next Code Two Docs</a>
+            <div class="space-x-4">
+                <a href="#introduction" class="text-white hover:text-gray-300">Introduction</a>
+                <a href="#authentication" class="text-white hover:text-gray-300">Authentication</a>
+                <a href="#ticketing" class="text-white hover:text-gray-300">Ticketing</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Documentation Content -->
+    <div class="container mx-auto p-8">
+        <!-- Introduction Section -->
+        <section id="introduction" class="mb-8">
+            <h2 class="text-3xl font-semibold text-gray-900">Introduction</h2>
+            <p class="text-gray-700 mt-4">Welcome to the official documentation for the Next Code Two platform! This guide will help you integrate and manage the authentication system, ticketing, and more.</p>
+        </section>
+
+        <!-- Authentication Section -->
+        <section id="authentication" class="mb-8">
+            <h2 class="text-3xl font-semibold text-gray-900">Authentication System</h2>
+            <p class="text-gray-700 mt-4">This section explains how to use the authentication system in Next Code Two, powered by Cloudflare Workers, JWT, and cookies.</p>
+
+            <div class="mt-6">
+                <h3 class="text-xl font-semibold text-gray-900">Getting Started</h3>
+                <p class="text-gray-700 mt-2">To get started with the authentication system, follow the steps below:</p>
+                <ol class="list-decimal ml-6 mt-2">
+                    <li class="text-gray-700">Create a Cloudflare Worker for authentication.</li>
+                    <li class="text-gray-700">Set up JWT-based token authentication.</li>
+                    <li class="text-gray-700">Store tokens securely in cookies.</li>
+                    <li class="text-gray-700">Configure routes for login and user registration.</li>
+                </ol>
+            </div>
+
+            <div class="mt-6">
+                <h3 class="text-xl font-semibold text-gray-900">Example Authentication Flow</h3>
+                <pre class="bg-gray-800 text-white p-4 rounded mt-2">
+{
+  "method": "POST",
+  "url": "/api/login",
+  "body": {
+    "email": "user@example.com",
+    "password": "password123"
+  }
+}
+                </pre>
+                <p class="text-gray-700 mt-2">This is an example of the authentication request. The response will include a JWT token.</p>
+            </div>
+        </section>
+
+        <!-- Ticketing Section -->
+        <section id="ticketing" class="mb-8">
+            <h2 class="text-3xl font-semibold text-gray-900">Ticketing System</h2>
+            <p class="text-gray-700 mt-4">This section covers how to manage and interact with the ticketing system.</p>
+
+            <div class="mt-6">
+                <h3 class="text-xl font-semibold text-gray-900">Creating a Ticket</h3>
+                <p class="text-gray-700 mt-2">You can create a new ticket via the following API:</p>
+                <pre class="bg-gray-800 text-white p-4 rounded mt-2">
+{
+  "method": "POST",
+  "url": "/api/tickets",
+  "body": {
+    "subject": "Issue with authentication",
+    "description": "Unable to log in to the dashboard."
+  }
+}
+                </pre>
+            </div>
+
+            <div class="mt-6">
+                <h3 class="text-xl font-semibold text-gray-900">Replying to a Ticket</h3>
+                <p class="text-gray-700 mt-2">To respond to an existing ticket, use the following API endpoint:</p>
+                <pre class="bg-gray-800 text-white p-4 rounded mt-2">
+{
+  "method": "POST",
+  "url": "/api/tickets/{ticket_id}/reply",
+  "body": {
+    "message": "We are investigating your issue."
+  }
+}
+                </pre>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-blue-600 py-6 mt-8">
+        <div class="max-w-7xl mx-auto text-center text-white">
+            <p>&copy; 2025 Next Code Two. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

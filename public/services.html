@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta http-equiv="Copyright" content="Next Code Two"/>
+
+        <!-- Meta Tags -->
+        <meta name="author" content="Liam Smets"/>
+        <meta name="rating" content="general" />
+        <meta name="language" content="English" />
+        <meta name="application-name" content="Next Code Two" />
+
+        <!-- Social Media -->
+        <meta name="twitter:title" content="Our Services | Next Code Two | Forwarding Technology Solutions" />
+        <meta name="twitter:description" content="Explore the technology services offered by Next Code Two, including custom software, platform integration, data analytics, and expert tech guides for the forwarding industry." />
+        <meta name="twitter:image" content="./assets/img/logo/banner/full-banner-nct.png" />
+
+        <meta property="og:title" content="Our Services | Next Code Two | Forwarding Technology Solutions" />
+        <meta property="og:site_name" content="Next Code Two" />
+        <meta property="og:description" content="Explore the technology services offered by Next Code Two, including custom software, platform integration, data analytics, and expert tech guides for the forwarding industry." />
+        <meta property="og:image" content="./assets/img/logo/banner/full-banner-nct.png" />
+        <meta property="og:url" content="https://www.nextcodetwo.be/services.html" />
+        <meta property="og:type" content="website"  />
+
+        <!-- Page title -->
+        <title>Our Services | Next Code Two</title>
+
+        <!-- Description -->
+        <meta name="description" content="Explore the technology services offered by Next Code Two, including custom software development, platform integration, data analytics, cloud solutions, automation, and expert tech guides tailored for the forwarding and logistics industry."/>
+
+        <!-- Favicons -->
+        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="16x16" />
+        <link rel="apple-touch-icon" href="assets/favicon/favicon.png" type="image/png" sizes="16x16" />
+        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="32x32" />
+        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="48x48" />
+        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="64x64" />
+        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="96x96" />
+        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="128x128" />
+        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="192x192" />
+        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="256x256" />
+        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="384x384" />
+        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="512x512" />
+        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="1024x1024" />
+        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="2048x2048" />
+        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="4096x4096" />
+
+        <!-- Keywords -->
+        <meta name="keywords" content="Next Code Two Services, Custom Software Development, Logistics Technology, Forwarding Software, Platform Integration, API Development, Cloud Solutions for Logistics, AWS, Azure, Data Analytics, Business Intelligence, Process Automation, RPA, IT Consulting, Technology Strategy, Tech Guides, Forwarding Training, Supply Chain Technology, Operational Efficiency"/>
+
+        <!-- CSS Plugins -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
+        <link rel="stylesheet" href="https://cdn.lineicons.com/4.0/lineicons.css" />
+        <link rel="stylesheet" href="./assets/css/main.css" />
+
+        <style>
+            /* Animation when menu open */
+                .menu-open span:nth-child(1) {
+                    transform: rotate(45deg) translate(5px, 5px);
+                }
+                .menu-open span:nth-child(2) {
+                    opacity: 0;
+                }
+                .menu-open span:nth-child(3) {
+                    transform: rotate(-45deg) translate(5px, -5px);
+                }
+        </style>
+    </head>
+    <body class="bg-white text-black dark:bg-[#021526] dark:text-white font-sans">
+
+    <!-- Navigation -->
+    <nav class="bg-black/10 backdrop-blur-lg border-b border-white/20 dark:text-white fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold">Next Code Two</a>
+
+            <!-- Mobile Menu Button -->
+            <button id="menu-btn" class="relative w-8 h-8 md:hidden text-black dark:text-white focus:outline-none">
+                <!-- Hamburger Icon -->
+                    <svg id="hamburger-icon" class="absolute inset-0 w-8 h-8 transition-all duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+
+                <!-- X Icon -->
+                    <svg id="close-icon" class="absolute inset-0 w-8 h-8 opacity-0 scale-75 transition-all duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+            </button>
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
+                <a href="/" class="relative group">
+                    <span class="transition">Home</span>
+                    <span class="absolute left-1/2 -bottom-0.5 w-0 h-0.5 bg-indigo-400 transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
+                </a>
+                <a href="/about-us" class="relative group">
+                    <span class="transition">About</span>
+                    <span class="absolute left-1/2 -bottom-0.5 w-0 h-0.5 bg-indigo-400 transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
+                </a>
+                <a href="/services" class="relative group text-indigo-400">
+                    <span class="transition">Services</span>
+                    <span class="absolute left-0 -bottom-0.5 w-full h-0.5 bg-indigo-400"></span>
+                </a>
+                <a href="/contact" class="relative group">
+                    <span class="transition">Contact</span>
+                    <span class="absolute left-1/2 -bottom-0.5 w-0 h-0.5 bg-indigo-400 transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
+                </a>
+            </div>
+            <!-- Get Started Button -->
+                <div class="hidden md:block">
+                    <a href="/login" class="px-4 py-2 border-2 border-indigo-400 rounded-full hover:text-white hover:bg-indigo-400 transition duration-500">Get Started</a>
+                </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="menu" class="hidden md:hidden px-4 pb-4">
+            <a href="/" class="block py-2 hover:text-indigo-400">Home</a>
+            <a href="/about-us" class="block py-2 hover:text-indigo-400">About</a>
+            <a href="/services" class="block py-2 text-indigo-400">Services</a>
+            <a href="/contact" class="block py-2 hover:text-indigo-400">Contact</a>
+            <a href="/login" class="block w-full mt-2 px-4 py-2 border border-indigo-400 rounded-full text-center hover:bg-indigo-400 hover:text-white transition duration-500 ">Get Started</a>
+        </div>
+    </nav>
+    <!-- End Navigation -->
+
+    <!-- Main Content Area -->
+    <main class="pt-20">
+
+        <!-- Hero Section -->
+        <section class="bg-gradient-to-b from-white to-gray-100 dark:from-[#021526] dark:to-[#031c33] py-20 px-4">
+            <div class="container mx-auto text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-indigo-500 dark:text-indigo-400">Our Services</h1>
+                <p class="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
+                    Leveraging technology to streamline your forwarding operations. Discover our range of solutions designed for efficiency, connectivity, and growth in the logistics sector.
+                </p>
+            </div>
+        </section>
+
+        <!-- Services Overview Section -->
+        <section class="py-16 px-4">
+            <div class="container mx-auto">
+                <h2 class="text-3xl font-semibold text-center mb-12">Tailored Technology for Forwarding Excellence</h2>
+                <p class="text-lg text-center text-gray-700 dark:text-gray-300 max-w-4xl mx-auto mb-16">
+                    At Next Code Two, we understand the unique challenges of the forwarding industry. Our services are specifically designed to address these complexities, providing you with the tools and expertise needed to thrive in a digital-first world.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    <!-- Service Card 1 -->
+                    <div class="bg-gray-50 dark:bg-[#031c33] p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 dark:shadow-indigo-900/30">
+                        <div class="flex items-center mb-4">
+                            <i class="lni lni-support text-4xl text-indigo-500 dark:text-indigo-400 mr-4"></i>
+                            <h3 class="text-xl font-semibold">IT Helpdesk & End-User Support</h3>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            Deliver reliable support to your employees with our IT helpdesk services. Whether it’s troubleshooting hardware, software, or network issues, our dedicated team offers expert assistance to resolve IT problems quickly and efficiently.
+                        </p>
+                    </div>
+
+                    <!-- Service Card 2 -->
+                    <div class="bg-gray-50 dark:bg-[#031c33] p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 dark:shadow-indigo-900/30">
+                        <div class="flex items-center mb-4">
+                            <i class="lni lni-briefcase text-4xl text-indigo-500 dark:text-indigo-400 mr-4"></i>
+                            <h3 class="text-xl font-semibold">IT Project Management & Consulting</h3>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            We offer IT consulting services to help you design and implement your technology projects. From strategy and planning to deployment and optimization, our consultants provide expert guidance to ensure the success of your IT initiatives.                        </p>
+                    </div>
+
+                    <!-- Service Card 3 -->
+                    <div class="bg-gray-50 dark:bg-[#031c33] p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 dark:shadow-indigo-900/30">
+                        <div class="flex items-center mb-4">
+                            <i class="lni lni-cloud-network text-4xl text-indigo-500 dark:text-indigo-400 mr-4"></i>
+                            <h3 class="text-xl font-semibold">Cloud & Edge Infrastructure</h3>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            Custom authentication systems using token-based, cookie, or API-driven models. Seamless login experiences with enterprise-grade security — including multi-factor authentication, SSO, and access control.                        </p>
+                    </div>
+
+                    <!-- Service Card 4 -->
+                    <div class="bg-gray-50 dark:bg-[#031c33] p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 dark:shadow-indigo-900/30">
+                        <div class="flex items-center mb-4">
+                            <i class="lni lni-write text-4xl text-indigo-500 dark:text-indigo-400 mr-4"></i>
+                            <h3 class="text-xl font-semibold">Technical Documentation & API Specs</h3>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            Full technical writing services, including API documentation (Swagger / OpenAPI), infrastructure diagrams, and dev onboarding docs.                        
+                        </p>
+                    </div>
+
+                    <!-- Service Card 5 -->
+                    <div class="bg-gray-50 dark:bg-[#031c33] p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 dark:shadow-indigo-900/30">
+                        <div class="flex items-center mb-4">
+                            <i class="lni lni-graduation text-4xl text-indigo-500 dark:text-indigo-400 mr-4"></i>
+                            <h3 class="text-xl font-semibold">Code Audits & Performance Optimization</h3>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            Already have a platform? We'll review your code, infrastructure, and workflows — identifying risks, bottlenecks, and opportunities for improvement.                        
+                        </p>
+                    </div>
+
+                    <!-- Service Card 6 -->
+                    <div class="bg-gray-50 dark:bg-[#031c33] p-8 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 dark:shadow-indigo-900/30">
+                        <div class="flex items-center mb-4">
+                            <i class="lni lni-support text-4xl text-indigo-500 dark:text-indigo-400 mr-4"></i>
+                            <h3 class="text-xl font-semibold">Ongoing Maintenance & Support</h3>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            Post-launch support to keep your systems up-to-date, secure, and evolving. Regular updates, patches, feature enhancements, and performance monitoring.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How We Help Section (Benefits) -->
+        <section class="bg-gray-100 dark:bg-[#021526] py-16 px-4">
+            <div class="container mx-auto">
+                <h2 class="text-3xl font-semibold text-center mb-12">Unlock Key Business Benefits</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+                    <div class="p-4">
+                        <i class="lni lni-rocket text-5xl text-indigo-500 dark:text-indigo-400 mb-4"></i>
+                        <h4 class="text-xl font-semibold mb-2">Boost Efficiency</h4>
+                        <p class="text-gray-600 dark:text-gray-400">Streamline workflows and reduce manual effort through automation and optimized systems.</p>
+                    </div>
+                    <div class="p-4">
+                        <i class="lni lni-eye text-5xl text-indigo-500 dark:text-indigo-400 mb-4"></i>
+                        <h4 class="text-xl font-semibold mb-2">Enhance Visibility</h4>
+                        <p class="text-gray-600 dark:text-gray-400">Gain real-time insights into your operations and shipments with integrated data and analytics.</p>
+                    </div>
+                    <div class="p-4">
+                        <i class="lni lni-graph text-5xl text-indigo-500 dark:text-indigo-400 mb-4"></i>
+                        <h4 class="text-xl font-semibold mb-2">Improve Scalability</h4>
+                        <p class="text-gray-600 dark:text-gray-400">Build flexible technology foundations that grow with your business needs.</p>
+                    </div>
+                    <div class="p-4">
+                        <i class="lni lni-customer text-5xl text-indigo-500 dark:text-indigo-400 mb-4"></i>
+                        <h4 class="text-xl font-semibold mb-2">Elevate Client Service</h4>
+                        <p class="text-gray-600 dark:text-gray-400">Offer better communication, faster response times, and self-service options through client portals.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action Section -->
+        <section class="bg-indigo-600 dark:bg-indigo-700 text-white py-16 px-4">
+            <div class="container mx-auto text-center">
+                <h2 class="text-3xl font-semibold mb-4">Ready to Optimize Your Forwarding Technology?</h2>
+                <p class="text-lg mb-8 max-w-2xl mx-auto">Discuss your specific needs with our experts and find out how our services can drive your business forward.</p>
+                <a href="/contact" class="px-6 py-3 bg-white text-indigo-600 font-semibold rounded-full hover:bg-gray-100 transition duration-300">
+                    Request a Consultation
+                </a>
+            </div>
+        </section>
+
+    </main>
+    <!-- End Main Content Area -->
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-6">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2025 Next Code Two. All rights reserved.</p>
+            <!-- Optional: Add social links or other footer content here -->
+        </div>
+    </footer>
+    <!-- End Footer -->
+
+    <!-- Font Awesome for icons (Keep if needed, Line Icons are used above) -->
+    <!-- <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> -->
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <!-- GLightbox JS -->
+    <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+    <!-- Line Icons -->
+    <script src="https://cdn.lineicons.com/4.0/lineicons.js"></script>
+    <!-- Custom JS -->
+    <script src="./assets/js/main.js"></script>
+    <!-- Optional: Tailwind CDN (usually for prototyping, remove if using build process) -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.js"></script> -->
+
+<script>
+const menuBtn = document.getElementById('menu-btn');
+const menu = document.getElementById('menu');
+const hamburgerIcon = document.getElementById('hamburger-icon');
+const closeIcon = document.getElementById('close-icon');
+
+menuBtn.addEventListener('click', () => {
+  menu.classList.toggle('hidden');
+
+  if (menu.classList.contains('hidden')) {
+    // Show hamburger, hide X
+    hamburgerIcon.classList.remove('opacity-0', 'scale-75');
+    closeIcon.classList.add('opacity-0', 'scale-75');
+  } else {
+    // Show X, hide hamburger
+    hamburgerIcon.classList.add('opacity-0', 'scale-75');
+    closeIcon.classList.remove('opacity-0', 'scale-75');
+  }
+});
+
+// Optional: Close mobile menu if clicked outside (add if needed)
+// document.addEventListener('click', (event) => {
+//   const isClickInsideMenu = menu.contains(event.target);
+//   const isClickOnButton = menuBtn.contains(event.target);
+//
+//   if (!isClickInsideMenu && !isClickOnButton && !menu.classList.contains('hidden')) {
+//     menu.classList.add('hidden');
+//     hamburgerIcon.classList.remove('opacity-0', 'scale-75');
+//     closeIcon.classList.add('opacity-0', 'scale-75');
+//   }
+// });
+
+</script>
+
+</body>
+</html>

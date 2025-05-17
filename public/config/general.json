@@ -1,0 +1,67 @@
+{
+    "title": "Next Code Two",
+    "description": "Access your tickets, profile, and tools — all in one place.",
+    "brand": {
+        "name": "Next Code Two", 
+        "url": "https://demo.nextcodetwo.be",
+        "keywords": "Forwarding Experts, Technology Solutions, Innovative Technology, Business Optimization, Digital Transformation, Custom Software, Logistics Technology, Tailored Solutions; Tech Guides, Operational Efficiency, Cloud Solutions, Data Analytics, Automation Tools, IT Consulting, Next-Gen Technology",
+        "author": "Liam Smets",
+        "logo": "/assets/favicon/favicon.png",
+        "banner": "/banner.png",
+        "favicon": "/assets/favicon/favicon.png",
+        "colors": {
+            "primaryColor": "#1D3557",
+            "secondaryColor": "#A8DADC",
+            "accentColor": "#457B9D",
+            "backgroundColor": "#F1FAEE",
+            "textColor": "#2B2D42",
+            "white": "#FFFFFF",
+            "featuresBG": "#1D3557"
+        }
+    },
+    "loginPageUrl": "/login",
+    "defaultAvatar": "https://www.gravatar.com/avatar/00000000000000000000000000000000?s=512&d=identicon",
+    "user": {
+      "profilePageUrl": "/user/profile",
+      "ticketPageUrl": "/user/tickets",
+      "notificationsPageUrl": "/user/notifications"
+    },
+    "footer": {
+      "text": "© 2025 Next Code Two. All rights reserved.",
+      "links": [
+        { "label": "Privacy", "href": "/privacy" },
+        { "label": "Terms", "href": "/terms" },
+        { "label": "Support", "href": "/support" },
+        { "label": "Contact", "href": "/contact" }
+      ]
+    },
+    "authentication": {
+      "sessionTimeout": 3600,
+      "cookieName": "auth_token",
+      "jwtSecret": "5a02ace9786321cb39f91ef15a498a2b2efceba5c44e3304bc8103a0ef7361711578e45c383a6d96848965441f22cdbb93580e3ef4fb9e15c7ff9dd8c6703ee3"
+    },
+    "admin": {
+      "role": "admin",
+      "dashboardUrl": "/admin/dashboard",
+      "ticketManagementUrl": "/admin/tickets"
+    },
+    "analytics": {
+      "googleAnalyticsId": "UA-XXXXXXX-X",
+      "trackPageViews": true
+    },
+    "socialMediaLinks": {
+      "discord": "https://discord.nextcodetwo.be",
+      "github": "https://github.nextcodetwo.be",
+      "linkedin": "https://linkedin.nextcodetwo.be",
+      "instagram": "https://instagram.nextcodetwo.be"
+    },
+    "support": {
+      "contact_Email": "support@nextcodetwo.be",
+      "helpCenterUrl": "/help"
+    },
+    "resend_api": {
+      "noreply_Email": "noreply@nextcodetwo.be",
+      "api_key": "re_8YVo43gS_7ZiHLPUb1iyc4Uxt1pakYEZC"
+    }
+  }
+  

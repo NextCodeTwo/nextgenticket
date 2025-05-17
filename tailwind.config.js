@@ -1,6 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./index.html"],
+    content: [
+        "./public/*.{html,js}",  // Make sure this includes the relevant files
+        "./src/**/*.{html,js,jsx,ts,tsx}",  // If you're working with a source folder
+      ],
   darkMode: ["selector", "[data-web-theme=dark]"],
   theme: {
     container: {

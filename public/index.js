@@ -1,12 +1,37 @@
-import bcrypt from "bcryptjs";
+import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
+
+// Config
+import GeneralConfig from './config/general.json';
+import indexConfig from './config/index.json';
+import AuthConfig from './config/auth.json';
+
+// General Pages
+import { home } from "./pages/home";
+import { ErrorPageHTML } from "./pages/error";
+import { privacy } from "./pages/privacy";
+import { login } from "./pages/login";
+
+// User Pages
+import { customerHome } from "./pages/user/home";
+import { userTickets } from "./pages/user/tickets";
+import { addTicketsUser } from "./pages/user/add";
+import { replyTicketsUser } from "./pages/user/reply";
+import { viewTicketUser } from "./pages/user/view";
+
+// Admin Pages
+import { homeAdmin } from "./pages/admin/home";
+import { addTicketsAdmin } from "./pages/admin/add";
+import { viewTicketsAdmin } from "./pages/admin/view";
+import { overviewTicketsAdmin } from "./pages/admin/overview";
 
 async function isValidToken(token, secret) {
     try {
         const { payload } = await jwtVerify(token, new TextEncoder().encode(secret));
+        
         if (typeof payload.isAdmin === 'boolean') {
             return payload;
-            }
+        }
         return null;
     } catch {
         return null;
@@ -15,61 +40,181 @@ async function isValidToken(token, secret) {
 
 export default {
     async fetch(request, env, ctx) {
-        const url = new URL(request.url);
-        const method = request.method;
+        const url = new URL(request.url); 
+        const method = request.method;     
         const pathname = url.pathname;
+        /*
+            GENERAL LINKS: 
+                - /
+                - /privacy
+                - /login
+                - /register
+        */
+        /* 
+            USER LINKS:
+                - /home
+                - /home/tickets
+                - /home/tickets/add
+                - /home/tickets/delete
+                - /home/tickets/reply/{ticketId}
+                - /home/tickets/view-ticket/{ticketId}
+        */
+        /* 
+            ADMIN LINKS:
+                - /admin
+                - /admin/tickets
+                - /admin/tickets/add
+                - /admin/tickets/delete
+                - /admin/tickets/reply/{ticketId}
+                - /admin/tickets/view-ticket/{ticketId}
+        */
 
-    /* 
-    USER LINKS:
-    - /home
-    - /home/tickets
-    - /home/tickets/add
-    - /home/tickets/delete
-    - /home/tickets/reply/
-    - /home/tickets/view-ticket/
-    */
-   /* 
-    ADMIN LINKS:
-    - /admin
-    - /admin/tickets
-    - /admin/tickets/add
-    - /admin/tickets/delete
-    - /admin/tickets/reply/
-    - /admin/tickets/view-ticket/
-    */
+        // === General Pages ===
+
+        // === Link '/' ===
+        if (method === "GET" && pathname === "/") {
+            const cookie = request.headers.get("Cookie") || "";
+            const token = cookie
+                .split(";")
+                .find((c) => c.trim().startsWith("auth_token="))
+                ?.split("=")[1];
+        
+            let username = null;
+            let avatarUrl = null;
+            let isAdmin = false;
+        
+            if (token) {
+                const payload = await isValidToken(token, env.JWT_SECRET);
+                if (payload && payload.userId) {
+                    const userQuery = await env.DB.prepare(
+                        "SELECT username, email, is_admin FROM users WHERE id = ?"
+                    )
+                        .bind(payload.userId)
+                        .first();
+                
+                    if (userQuery) {
+                        username = userQuery.username;
+                        isAdmin = userQuery.is_admin === 1;
+                    
+                        const md5 = await crypto.subtle.digest(
+                            "MD5",
+                            new TextEncoder().encode(userQuery.email.trim().toLowerCase())
+                        );
+                        const hash = [...new Uint8Array(md5)]
+                            .map((b) => b.toString(16).padStart(2, "0"))
+                            .join("");
+                        avatarUrl = `https://www.gravatar.com/avatar/${hash}?s=512&d=identicon`;
+                    }
+                }
+            }
+
+            return new Response(home(username, avatarUrl, isAdmin, GeneralConfig, indexConfig, AuthConfig), {
+                headers: { "Content-Type": "text/html; charset=UTF-8" },
+            });
+        }
+
+        // === Link '/login' ===
+        if (method === "GET" && pathname === "/login") {
+            const cookie = request.headers.get("Cookie") || "";
+            const token = cookie
+                .split(";")
+                .find((c) => c.trim().startsWith("auth_token="))
+                ?.split("=")[1];
+
+            if (token) {
+                const payload = await isValidToken(token, env.JWT_SECRET);
+                    if (payload && payload.userId) {
+                        return Response.redirect(new URL("/home", request.url), 302);
+                    }
+            }
+
+            return new Response(login(null, null, false, GeneralConfig, indexConfig, AuthConfig), {
+                headers: { "Content-Type": "text/html; charset=UTF-8" },
+            });
+        }
+
+        // === Link '/privacy' ===
+        if (method === "GET" && pathname === "/privacy") {
+            const cookie = request.headers.get("Cookie") || "";
+            const token = cookie
+                .split(";")
+                .find((c) => c.trim().startsWith("auth_token="))
+                ?.split("=")[1];
+        
+            let username = null;
+            let avatarUrl = null;
+            let isAdmin = féalse;
+        
+            if (token) {
+                const payload = await isValidToken(token, env.JWT_SECRET);
+                if (payload && payload.userId) {
+                    const userQuery = await env.DB.prepare(
+                        "SELECT username, email, is_admin FROM users WHERE id = ?"
+                    )
+                        .bind(payload.userId)
+                        .first();
+                
+                    if (userQuery) {
+                        username = userQuery.username;
+                        isAdmin = userQuery.is_admin === 1;
+                    
+                        const md5 = await crypto.subtle.digest(
+                            "MD5",
+                            new TextEncoder().encode(userQuery.email.trim().toLowerCase())
+                        );
+                        const hash = [...new Uint8Array(md5)]
+                            .map((b) => b.toString(16).padStart(2, "0"))
+                            .join("");
+                        avatarUrl = `https://www.gravatar.com/avatar/${hash}?s=512&d=identicon`;
+                    }
+                }
+            }
+
+            return new Response(privacy(username, avatarUrl, isAdmin, GeneralConfig, indexConfig, AuthConfig), {
+                headers: { "Content-Type": "text/html; charset=UTF-8" },
+            });
+        }
+
+    
 
     // === USER LINK '/home' ===
     if (method === "GET" && pathname === "/home") {
         const cookie = request.headers.get('Cookie') || '';
-        const token = cookie.split(';').find(c => c.trim().startsWith('auth_token='))?.split('=')[1];
-
-        // No token or invalid token? -> Redirect to login
-        const payload = token ? await isValidToken(token, env.JWT_SECRET) : null;
-        if (!payload) {
-            return new Response(null, {
-                status: 302,
-                headers: {
-                  Location: '/login?error=notloggedin'
-                }
-              });
-              
-        }
-
-        // Token is valid -> Serve the customer area home page
-        return new Response(customerAreaHomePageHTML(), {
-            headers: { "Content-Type": "text/html; charset=UTF-8" },
-        });
-    }
-
-// === USER LINK '/home/tickets' ===
-if (method === 'GET' && pathname === '/home/tickets') {
-    try {
-        const loginPageRoot = '/login';
-        const cookie = request.headers.get('Cookie') || '';
         const token = cookie
-            .split(';')
-            .find(c => c.trim().startsWith('auth_token='))
-            ?.split('=')[1];
+            .split(";")
+            .find((c) => c.trim().startsWith("auth_token="))
+            ?.split("=")[1];
+
+        const payload = await isValidToken(token, env.JWT_SECRET);
+
+        let username = null;
+        let avatarUrl = null;
+        let isAdmin = false;
+
+        if (token) {
+            const payload = await isValidToken(token, env.JWT_SECRET);
+            if (payload && payload.userId) {
+                const userQuery = await env.DB.prepare(
+                    "SELECT username, email, is_admin FROM users WHERE id = ?"
+                )
+                    .bind(payload.userId)
+                    .first();
+            
+                if (userQuery) {
+                    username = userQuery.username;
+                    isAdmin = userQuery.is_admin === 1;
+                
+                    const md5 = await crypto.subtle.digest(
+                        "MD5",
+                        new TextEncoder().encode(userQuery.email.trim().toLowerCase())
+                    );
+                    const hash = [...new Uint8Array(md5)]
+                        .map((b) => b.toString(16).padStart(2, "0"))
+                        .join("");
+                    avatarUrl = `https://www.gravatar.com/avatar/${hash}?s=512&d=identicon`;
+                }
+            }
+        }
 
         if (!token) {
             return new Response(null, {
@@ -80,8 +225,6 @@ if (method === 'GET' && pathname === '/home/tickets') {
               });
         }
 
-        // Validate the token and get user info
-        const payload = await isValidToken(token, env.JWT_SECRET);
         if (!payload) {
             return new Response(null, {
                 status: 302,
@@ -114,155 +257,290 @@ if (method === 'GET' && pathname === '/home/tickets') {
             ticketRepliesById[reply.ticket_id].push(reply);
         }
 
-        // Log the data to ensure correctness
-        console.log('User Tickets:', tickets);
-        console.log('User Replies grouped by ticket_id:', ticketRepliesById);
-
-        // Render the user overview page with tickets and replies
-        return new Response(userOverviewHTML(tickets, ticketRepliesById), {
+        return new Response(customerHome(username, avatarUrl, isAdmin, GeneralConfig, indexConfig, AuthConfig, tickets, ticketRepliesById), {
             headers: { "Content-Type": "text/html; charset=UTF-8" },
         });
-
-    } catch (err) {
-        return new Response(
-            ErrorPageHTML(
-                404, 
-                'Internal Server Error', 
-                'Something went wrong on our end. Please try again later or contact support if the issue persists.'
-            ), {
-                status: 404,
-                headers: { "Content-Type": "text/html; charset=UTF-8" },
-            }); 
     }
-}
-if (method === 'GET' && pathname.startsWith('/home/tickets/view-ticket')) {
+
+// === USER LINK '/home/tickets' ===
+if (method === 'GET' && pathname === '/home/tickets') {
     try {
-        const token = (request.headers.get('Cookie') || '')
-            .split(';')
-            .find(c => c.trim().startsWith('auth_token='))
-            ?.split('=')[1];
+        const cookie = request.headers.get("Cookie") || "";
+        const token = cookie
+            .split(";")
+            .find((c) => c.trim().startsWith("auth_token="))
+            ?.split("=")[1];
 
         if (!token) {
             return new Response(null, {
                 status: 302,
-                headers: {
-                  Location: '/login?error=notloggedin'
-                }
-              });
+                headers: { Location: '/login?error=notloggedin' },
+            });
         }
 
         const payload = await isValidToken(token, env.JWT_SECRET);
-        if (!payload) {
+        if (!payload || typeof payload.userId !== "number") {
             return new Response(null, {
                 status: 302,
-                headers: {
-                  Location: '/login?error=invalidtoken'
-                }
-              });
+                headers: { Location: '/login?error=invalidtoken' },
+            });
         }
 
-        const ticketId = pathname.split('/').pop();
-        const ticketQuery = await env.DB.prepare('SELECT * FROM tickets WHERE id = ? AND user_id = ?')
-            .bind(ticketId, payload.userId)
-            .first();
+        const userId = payload.userId;
 
-        if (!ticketQuery) {
+        // Haal info van de ingelogde gebruiker op
+        const userQuery = await env.DB.prepare(
+            "SELECT username, email, is_admin FROM users WHERE id = ?"
+        ).bind(userId).first();
+
+        if (!userQuery) {
+            return new Response(null, {
+                status: 302,
+                headers: { Location: '/login?error=usernotfound' },
+            });
+        }
+
+        const username = userQuery.username;
+        const isAdmin = userQuery.is_admin === 1;
+
+        // Avatar
+        const md5 = await crypto.subtle.digest(
+            "MD5",
+            new TextEncoder().encode(userQuery.email.trim().toLowerCase())
+        );
+        const hash = [...new Uint8Array(md5)]
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join("");
+        const avatarUrl = `https://www.gravatar.com/avatar/${hash}?s=512&d=identicon`;
+
+        // ✅ TOON ALLEEN TICKETS VAN DEZE USER — ongeacht admin status
+        const { results: tickets } = await env.DB.prepare(
+            'SELECT * FROM tickets WHERE user_id = ? ORDER BY created_at DESC'
+        ).bind(userId).all();
+
+        const { results: replyResults } = await env.DB.prepare(`
+            SELECT tr.id, tr.ticket_id, tr.user_id, tr.message, tr.created_at, u.username
+            FROM ticket_replies tr
+            JOIN users u ON tr.user_id = u.id
+            WHERE tr.ticket_id IN (SELECT id FROM tickets WHERE user_id = ?)
+            ORDER BY tr.created_at ASC
+        `).bind(userId).all();
+
+        const ticketRepliesById = {};
+        for (const reply of replyResults) {
+            if (!ticketRepliesById[reply.ticket_id]) {
+                ticketRepliesById[reply.ticket_id] = [];
+            }
+            ticketRepliesById[reply.ticket_id].push(reply);
+        }
+
+        return new Response(
+            userTickets(
+                tickets,
+                ticketRepliesById,
+                username,
+                avatarUrl,
+                isAdmin,
+                GeneralConfig,
+                indexConfig,
+                AuthConfig
+            ),
+            {
+                headers: { "Content-Type": "text/html; charset=UTF-8" },
+            }
+        );
+
+    } catch (err) {
+        console.error("Error in /home/tickets:", err);
+        return new Response(
+            ErrorPageHTML(
+                500,
+                'Internal Server Error',
+                'Something went wrong on our end. Please try again later or contact support.'
+            ),
+            {
+                status: 500,
+                headers: { "Content-Type": "text/html; charset=UTF-8" },
+            }
+        );
+    }
+}
+
+
+
+    // === USER LINK '/home/tickets/view-ticket' ===
+    if (method === 'GET' && pathname.startsWith('/home/tickets/view-ticket')) {
+        try {
+            const token = (request.headers.get('Cookie') || '')
+                .split(';')
+                .find(c => c.trim().startsWith('auth_token='))
+                ?.split('=')[1];
+        
+            if (!token) {
+                return new Response(null, {
+                    status: 302,
+                    headers: {
+                      Location: '/login?error=notloggedin'
+                    }
+                  });
+            }
+        
+            const payload = await isValidToken(token, env.JWT_SECRET);
+            if (!payload) {
+                return new Response(null, {
+                    status: 302,
+                    headers: {
+                      Location: '/login?error=invalidtoken'
+                    }
+                  });
+            }
+        
+            const ticketId = pathname.split('/').pop();
+            const ticketQuery = await env.DB.prepare('SELECT * FROM tickets WHERE id = ? AND user_id = ?')
+                .bind(ticketId, payload.userId)
+                .first();
+        
+            if (!ticketQuery) {
+                return new Response(
+                    ErrorPageHTML(
+                        404, 
+                        'Ticket not Found', 
+                        'The ticket you are looking for does not exist or may have been removed.'
+                    ), {
+                        status: 404,
+                        headers: { "Content-Type": "text/html; charset=UTF-8" },
+                    }); 
+            }
+        
+            const repliesQuery = await env.DB.prepare(`
+                SELECT tr.*, u.username FROM ticket_replies tr
+                JOIN users u ON tr.user_id = u.id
+                WHERE tr.ticket_id = ?
+                ORDER BY tr.created_at ASC
+            `).bind(ticketId).all();
+            
+            return new Response(userViewTicketHTML(ticketQuery, repliesQuery.results), {
+                headers: { "Content-Type": "text/html; charset=UTF-8" }
+            });
+        
+        } catch (err) {
+            console.error('Error in /home/tickets/view-ticket:', err);
             return new Response(
                 ErrorPageHTML(
                     404, 
-                    'Ticket not Found', 
-                    'The ticket you are looking for does not exist or may have been removed.'
+                    'Internal Server Error', 
+                    'Something went wrong on our end. Please try again later or contact support if the issue persists.'
                 ), {
                     status: 404,
                     headers: { "Content-Type": "text/html; charset=UTF-8" },
                 }); 
         }
-
-        const repliesQuery = await env.DB.prepare(`
-            SELECT tr.*, u.username FROM ticket_replies tr
-            JOIN users u ON tr.user_id = u.id
-            WHERE tr.ticket_id = ?
-            ORDER BY tr.created_at ASC
-        `).bind(ticketId).all();
-
-        return new Response(userViewTicketHTML(ticketQuery, repliesQuery.results), {
-            headers: { "Content-Type": "text/html; charset=UTF-8" }
-        });
-
-    } catch (err) {
-        console.error('Error in /home/tickets/view-ticket:', err);
-        return new Response(
-            ErrorPageHTML(
-                404, 
-                'Internal Server Error', 
-                'Something went wrong on our end. Please try again later or contact support if the issue persists.'
-            ), {
-                status: 404,
-                headers: { "Content-Type": "text/html; charset=UTF-8" },
-            }); 
     }
-}
-if (method === 'GET' && pathname.startsWith('/home/tickets/reply/')) {
-    const ticketId = pathname.split('/').pop();
-    return new Response(userReplyTicketForm(ticketId), {
-        headers: { "Content-Type": "text/html; charset=UTF-8" }
-    });
-}
-
-if (method === 'POST' && pathname === '/home/tickets/reply-process') {
-    try {
-        const token = (request.headers.get('Cookie') || '')
+    if (method === 'GET' && pathname.startsWith('/home/tickets/reply/')) {
+        const ticketId = pathname.split('/').pop();
+      
+        try {
+          // Fetch the ticket details
+          const ticket = await env.DB.prepare(`
+            SELECT title, description FROM tickets WHERE id = ?
+          `).bind(ticketId).first();
+      
+          if (!ticket) {
+            return new Response(JSON.stringify({ error: 'Ticket not found' }), {
+              status: 404,
+              headers: { 'Content-Type': 'application/json' },
+            });
+          }
+      
+          // Fetch the replies for the ticket
+          const replies = await env.DB.prepare(`
+            SELECT message, created_at FROM ticket_replies WHERE ticket_id = ?
+            ORDER BY created_at ASC
+          `).bind(ticketId).all();
+      
+          // Generate the HTML page for replying
+          const pageHTML = replyTicketUser(ticketId, ticket.title, ticket.description, replies.results);
+      
+          return new Response(pageHTML, {
+            headers: { 'Content-Type': 'text/html' },
+          });
+      
+        } catch (err) {
+          return new Response(JSON.stringify({ error: 'Internal server error', details: err.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
+      }
+      
+      
+      
+      if (method === 'POST' && pathname === '/home/tickets/reply') {
+        try {
+          const token = (request.headers.get('Cookie') || '')
             .split(';')
             .find(c => c.trim().startsWith('auth_token='))
             ?.split('=')[1];
-
-        if (!token) {
-            return new Response(null, {
-                status: 302,
-                headers: {
-                  Location: '/login?error=notloggedin'
-                }
-              });
-        }
-
-        const payload = await isValidToken(token, env.JWT_SECRET);
-        if (!payload) {
-            return new Response(null, {
-                status: 302,
-                headers: {
-                  Location: '/login?error=invalidtoken'
-                }
-              });
-        }
-
-        const formData = await request.formData();
-        const ticketId = formData.get('ticket_id');
-        const message = formData.get('message');
-
-        await env.DB.prepare('INSERT INTO ticket_replies (ticket_id, user_id, message, created_at) VALUES (?, ?, ?, datetime("now"))')
-            .bind(ticketId, payload.userId, message)
-            .run();
-
-            return new Response(null, {
-                status: 302,
-                headers: {
-                  Location: `/home/tickets/view-ticket/${ticketId}`
-                }
-              });
-
-    } catch (err) {
-        console.error('Error replying to ticket:', err);
-        return new Response(
-            ErrorPageHTML(
-                404, 
-                'Internal Server Error', 
-                'Something went wrong on our end. Please try again later or contact support if the issue persists.'
-            ), {
+      
+          if (!token) {
+            return Response.redirect('/login?error=notloggedin', 302);
+          }
+      
+          const payload = await isValidToken(token, env.JWT_SECRET);
+          if (!payload) {
+            return Response.redirect('/login?error=invalidtoken', 302);
+          }
+      
+          const formData = await request.formData();
+          const ticketId = formData.get('ticket_id');
+          const message = formData.get('message');
+      
+          if (!ticketId || !message) {
+            return Response.redirect(`/home/tickets/view-ticket/${ticketId}?error=missingdata`, 302);
+          }
+      
+          const ticket = await env.DB.prepare(
+            'SELECT * FROM tickets WHERE id = ? AND user_id = ?'
+          ).bind(ticketId, payload.userId).first();
+      
+          if (!ticket) {
+            return new Response(
+              ErrorPageHTML(
+                404,
+                'Ticket not Found',
+                'The ticket you are looking for does not exist or may have been removed.'
+              ),
+              {
                 status: 404,
                 headers: { "Content-Type": "text/html; charset=UTF-8" },
-            }); 
-    }
-}
+              }
+            );
+          }
+      
+          await env.DB.prepare(`
+            INSERT INTO ticket_replies (ticket_id, user_id, message, created_at)
+            VALUES (?, ?, ?, datetime('now'))
+          `).bind(ticketId, payload.userId, message).run();
+      
+          // ✅ Redirect to ticket overview page
+          return Response.redirect('/home/tickets?success=replysent', 302);
+      
+        } catch (err) {
+          console.error('Error replying to ticket:', err);
+          return new Response(
+            ErrorPageHTML(
+              500,
+              'Internal Server Error',
+              'Something went wrong on our end. Please try again later or contact support.'
+            ),
+            {
+              status: 500,
+              headers: { "Content-Type": "text/html; charset=UTF-8" },
+            }
+          );
+        }
+      }
+      
 
     
     // === REGISTER PROCESSING ===
@@ -322,45 +600,50 @@ if (method === 'POST' && pathname === '/home/tickets/reply-process') {
             const formData = await request.formData();
             const email = formData.get('email');
             const password = formData.get('password');
-            const loginPageRoot = '/login';
-    
-            console.log('Received email:', email); // Log email
-            console.log('Received password:', password); // Log password
-    
+
             if (!email || !password) {
                 console.log('Missing email or password');
-                return Response.redirect(`${loginPageRoot}?error=missing`, 302);
+                return Response.redirect("/login?error=missing", 302);
             }
-    
+
             const userResult = await env.DB
                 .prepare("SELECT id, username, password, is_admin FROM users WHERE email = ?")
                 .bind(email)
                 .first();
-    
+
             if (!userResult) {
                 console.log('User not found');
-                return Response.redirect(`${loginPageRoot}?error=incorrectemail`, 302);
+                return Response.redirect("/login?error=incorrectemail", 302);
             }
-    
-            const passwordMatch = await bcrypt.compare(password, userResult.password);
+
+            const storedHash = userResult.password;
+            if (!storedHash) {
+                console.error('No password hash found for user');
+                return Response.redirect("/login?error=incorrectpassword", 302);
+            }
+
+            const passwordMatch = await bcrypt.compare(password, storedHash);
             if (!passwordMatch) {
                 console.log('Incorrect password');
-                return Response.redirect(`${loginPageRoot}?error=incorrectpassword`, 302);
+                return Response.redirect("/login?error=incorrectpassword", 302);
             }
-    
+
+            if (!env.JWT_SECRET) {
+                console.error('JWT_SECRET is not defined in env');
+                throw new Error('JWT_SECRET not set');
+            }
+
             const jwt = await new SignJWT({
                 email,
                 username: userResult.username,
                 userId: userResult.id,
-                isAdmin: !!userResult.is_admin // Ensure this is set correctly
+                isAdmin: !!userResult.is_admin
             })
             .setProtectedHeader({ alg: 'HS256' })
             .setIssuedAt()
             .setExpirationTime('1h')
             .sign(new TextEncoder().encode(env.JWT_SECRET));
-            
-            console.log('Generated JWT:', jwt); // Log JWT
-    
+
             return new Response(null, {
                 status: 302,
                 headers: {
@@ -368,17 +651,24 @@ if (method === 'POST' && pathname === '/home/tickets/reply-process') {
                     'Location': '/home'
                 }
             });
-    
+
         } catch (error) {
+            console.error('Error in /process handler:', error); // tijdelijke logging
             return new Response(
-                ErrorPageHTML(
-                    500, 
-                    'Internal Server Error', 
-                    'Something went wrong on our end. Please try again later or contact support if the issue persists.'
-                ), {
-                    status: 404,
+                `
+                <html>
+                <head><title>500 - Error</title></head>
+                <body>
+                    <h1>500 - Interne serverfout</h1>
+                    <p>Er is iets fout gegaan. Probeer het later opnieuw of contacteer support.</p>
+                </body>
+                </html>
+                `,
+                {
+                    status: 500,
                     headers: { "Content-Type": "text/html; charset=UTF-8" },
-                });
+                }
+            );
         }
     }
     
@@ -548,46 +838,69 @@ if (method === 'GET' && pathname === '/admin/tickets') {
         return new Response('Internal Server Error', { status: 500 });
     }
 }*/
-
-if (method === 'POST' && pathname === '/tickets/add') {
-    try {
-        const formData = await request.text(); // Get the raw form data
-        const params = new URLSearchParams(formData); // Parse it as URLSearchParams
-
-        const title = params.get('title');
-        const description = params.get('description');
-
-        if (!title || !description) {
-            return new Response('Subject and content are required!', { status: 400 });
-        }
-
+    // === USER LINK '/home/tickets/add' ===
+    if (method === "GET" && pathname === "/home/tickets/add") {
         const cookie = request.headers.get('Cookie') || '';
-        const token = cookie
-            .split(';')
-            .find(c => c.trim().startsWith('auth_token='))
-            ?.split('=')[1];
+        const token = cookie.split(';').find(c => c.trim().startsWith('auth_token='))?.split('=')[1];
 
-        if (!token) {
-            return new Response('Unauthorized', { status: 401 });
-        }
-
-        const payload = await isValidToken(token, env.JWT_SECRET);
+        // No token or invalid token? -> Redirect to login
+        const payload = token ? await isValidToken(token, env.JWT_SECRET) : null;
         if (!payload) {
-            return new Response('Invalid Token', { status: 401 });
+            return new Response(null, {
+                status: 302,
+                headers: {
+                  Location: '/login?error=notloggedin'
+                }
+              });
+              
         }
 
-        const { userId } = payload;
-
-        // Insert ticket into the database
-        const query = 'INSERT INTO tickets (title, description, user_id) VALUES (?, ?, ?)';
-        await env.DB.prepare(query).bind(title, description, userId).run();
-
-        return new Response('Ticket Submitted Successfully', { status: 200 });
-    } catch (err) {
-        console.error('Error adding ticket:', err);
-        return new Response('Internal Server Error', { status: 500 });
+        // Token is valid -> Serve the customer area home page
+        return new Response(addticketformHTML(), {
+            headers: { "Content-Type": "text/html; charset=UTF-8" },
+        });
     }
-}
+
+    // === USER LINK '/home/tickets/add-process' ===
+    if (method === 'POST' && pathname === '/home/tickets/add-process') {
+        try {
+            const formData = await request.text(); // Get the raw form data
+            const params = new URLSearchParams(formData); // Parse it as URLSearchParams
+
+            const title = params.get('title');
+            const description = params.get('description');
+
+            if (!title || !description) {
+                return new Response('Subject and content are required!', { status: 400 });
+            }
+
+            const cookie = request.headers.get('Cookie') || '';
+            const token = cookie
+                .split(';')
+                .find(c => c.trim().startsWith('auth_token='))
+                ?.split('=')[1];
+
+            if (!token) {
+                return new Response('Unauthorized', { status: 401 });
+            }
+
+            const payload = await isValidToken(token, env.JWT_SECRET);
+            if (!payload) {
+                return new Response('Invalid Token', { status: 401 });
+            }
+
+            const { userId } = payload;
+
+            // Insert ticket into the database
+            const query = 'INSERT INTO tickets (title, description, user_id) VALUES (?, ?, ?)';
+            await env.DB.prepare(query).bind(title, description, userId).run();
+
+            return new Response('Ticket Submitted Successfully', { status: 200 });
+        } catch (err) {
+            console.error('Error adding ticket:', err);
+            return new Response('Internal Server Error', { status: 500 });
+        }
+    }
 
 // === Protect Update Ticket Page ===
 if (method === "GET" && pathname.startsWith("/admin/update-ticket/")) {
@@ -777,6 +1090,67 @@ if (method === 'GET' && pathname.startsWith('/ticket-details/')) {
     }
 }
 
+function replyTicketUser(ticketId, title, description, replies = []) {
+    const replySection = replies.map((reply, index) => `
+        <div class="border-l-4 border-blue-500 pl-4 py-2 mb-4 bg-blue-50 rounded">
+            <p class="font-semibold">Reply #${index + 1}:</p>
+            <p>${reply.message}</p>
+        </div>
+    `).join('');
+
+    return `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Reply to Ticket #${ticketId}</title>
+            <script src="https://cdn.tailwindcss.com"></script>
+        </head>
+        <body class="bg-gray-100 text-gray-800">
+            <div class="max-w-4xl mx-auto mt-10 p-6 bg-white border-2 border-blue-500 rounded-xl shadow-md">
+                
+                <!-- Header -->
+                <div class="mb-6">
+                    <h1 class="text-3xl font-bold mb-2">Reply to Ticket #${ticketId}</h1>
+                    <p class="text-gray-600">Replying to ticket titled: <strong>${title}</strong></p>
+                </div>
+
+                <!-- Ticket Details -->
+                <div class="mb-6 p-4 bg-gray-50 border border-gray-300 rounded">
+                    <h2 class="text-xl font-semibold mb-2">Ticket Details</h2>
+                    <p><strong>Title:</strong> ${title}</p>
+                    <p><strong>Description:</strong> ${description}</p>
+                </div>
+
+                <!-- Previous Replies -->
+                <div class="mb-6 p-4 bg-gray-50 border border-gray-300 rounded">
+                    <h2 class="text-xl font-semibold mb-4">Previous Replies</h2>
+                    ${replies.length ? replySection : '<p class="text-gray-500 italic">No replies yet.</p>'}
+                </div>
+
+                <!-- Reply Form -->
+                <form action="/home/tickets/reply" method="POST" class="space-y-4">
+                    <input type="hidden" name="ticket_id" value="${ticketId}">
+
+                    
+                    <div>
+                        <label for="message" class="block font-medium">Your Reply</label>
+                        <textarea id="message" name="message" required placeholder="Enter your reply here..." class="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+                    </div>
+
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg">Send Reply</button>
+                </form>
+
+                <div class="mt-6">
+                    <a href="/home/tickets" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">Back to Dashboard</a>
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+}
+
 
 function ticketadminOverviewHTML(tickets, ticketRepliesById) {
     return `
@@ -820,7 +1194,7 @@ function ticketadminOverviewHTML(tickets, ticketRepliesById) {
         <h1 class="text-3xl font-bold mb-6">All Tickets</h1>
         <div class="space-y-6">
             ${tickets.length > 0 ? tickets.map(ticket => `
-                <div class="bg-white shadow rounded-xl p-4">
+                <div class="bg-gray-200 shadow rounded-xl p-4">
                     <div class="flex justify-between items-center mb-2">
                         <h2 class="text-xl font-semibold">${ticket.title}</h2>
                         <span class="text-sm text-gray-500">${new Date(ticket.created_at).toLocaleString()}</span>
@@ -828,9 +1202,9 @@ function ticketadminOverviewHTML(tickets, ticketRepliesById) {
                     <p class="text-gray-700 mb-3">${ticket.description}</p>
 
                     <div class="flex space-x-2 mb-4">
-                        <button onclick="replyToTicket('${ticket.id}')" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">Reply</button>
-                        <button onclick="editTicket('${ticket.id}', \`${(ticket.description || "").replace(/`/g, "\\`")}\`)" class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm">Edit</button>
-                        <button onclick="confirmDelete('${ticket.id}')" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm">Delete</button>
+                        <button onclick="replyToTicket('${ticket.id}')" class="px-3 py-1 bg-blue-500  rounded hover:bg-blue-600 text-sm">Reply</button>
+                        <button onclick="editTicket('${ticket.id}', \`${(ticket.description || "").replace(/`/g, "\\`")}\`)" class="px-3 py-1 bg-yellow-500 rounded hover:bg-yellow-600 text-sm">Edit</button>
+                        <button onclick="confirmDelete('${ticket.id}')" class="px-3 py-1 bg-red-500  rounded hover:bg-red-600 text-sm">Delete</button>
                     </div>
 ${(ticketRepliesById[ticket.id]?.length > 0) ? `
     <div class="border-t pt-4 mt-4 space-y-2">
@@ -877,65 +1251,7 @@ ${(ticketRepliesById[ticket.id]?.length > 0) ? `
 </html>
 `;
 }
-function userOverviewHTML(tickets, ticketRepliesById) {
-    return `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Your Ticket Overview</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        // Function to handle replying to tickets
-        function replyToTicket(ticketId) {
-            window.location.href = "/home/tickets/reply/" + ticketId;
-        }
-        
-        // Function to view ticket details
-        function viewTicket(ticketId) {
-            window.location.href = "/home/tickets/view-ticket/" + ticketId;
-        }
-    </script>
-</head>
-<body class="bg-gray-100 text-gray-800">
-    <div class="max-w-5xl mx-auto p-6">
-        <h1 class="text-3xl font-bold mb-6">Your Tickets</h1>
-        <div class="space-y-6">
-            ${tickets.length > 0 ? tickets.map(ticket => `
-                <div class="bg-white shadow rounded-xl p-4">
-                    <div class="flex justify-between items-center mb-2">
-                        <h2 class="text-xl font-semibold">${ticket.title}</h2>
-                        <span class="text-sm text-gray-500">${new Date(ticket.created_at).toLocaleString()}</span>
-                    </div>
-                    <p class="text-gray-700 mb-3">${ticket.description}</p>
 
-                    <div class="flex space-x-2 mb-4">
-                        <button onclick="viewTicket('${ticket.id}')" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">View</button>
-                        <button onclick="replyToTicket('${ticket.id}')" class="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm">Reply</button>
-                    </div>
-
-                    ${(ticketRepliesById[ticket.id]?.length > 0) ? `
-                        <div class="border-t pt-4 mt-4 space-y-2">
-                            <h3 class="text-md font-semibold text-gray-600">Replies:</h3>
-                            ${ticketRepliesById[ticket.id].map(reply => `
-                                <div class="bg-gray-100 rounded p-2">
-                                    <p class="text-sm text-gray-800">${reply.message}</p>
-                                    <div class="text-xs text-gray-500 mt-1">
-                                        By ${reply.username} on ${new Date(reply.created_at).toLocaleString()}
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    ` : '<p class="text-sm text-gray-400">No replies yet.</p>'}
-                </div>
-            `).join('') : '<p>No tickets available.</p>'}
-        </div>
-    </div>
-</body>
-</html>
-`;
-}
 
 
 
@@ -965,28 +1281,6 @@ function adminTicketOverviewHTML(tickets) {
           </thead>
           <tbody>${rows}</tbody>
         </table>
-      </body>
-      </html>
-    `;
-  }
-  function adminPageHTML() {
-    return `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Admin Dashboard</title>
-      </head>
-      <body>
-        <h1>Welcome Admin</h1>
-        <p>This page is only visible to admin users.</p>
-        <button onclick="logout()">Logout</button>
-  
-        <script>
-          function logout() {
-            document.cookie = 'auth_token=; Max-Age=0; path=/';
-            window.location.href = '/';
-          }
-        </script>
       </body>
       </html>
     `;
@@ -1036,271 +1330,14 @@ function updateTicketHTML(ticketId, title, description) {
         </html>
     `;
 }
-// === HTML Template for Customer Area Home Page ===
-function customerAreaHomePageHTML() {
-    return `
-<!DOCTYPE html>
-<!-- © Next Code Two-->
-<!-- Made by Liam Smets-->
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-        <meta http-equiv="Copyright" content="Next Code Two"/>
-
-        <!-- Meta Tags -->
-        <meta name="author" content="Liam Smets"/>
-        <meta name="rating" content="general" />
-        <meta name="language" content="English" />
-        <meta name="application-name" content="Next Code Two" />
-        
-        <!-- Social Media -->
-        <meta name="twitter:title" content="Portal | Next Code Two" />
-        <meta name="twitter:description" content="Next Code Two is a leading forwarding company offering technology guides and tailored solutions to optimize your operations. Discover innovative ways to connect and grow with us." />
-        <meta name="twitter:image" content="./assets/img/logo/banner/full-banner-nct.png" />
-
-        <meta property="og:title" content="Portal | Next Code Two" />
-        <meta property="og:site_name" content="Portal | Next Code Two" />
-        <meta property="og:description" content="Next Code Two is a leading forwarding company offering technology guides and tailored solutions to optimize your operations. Discover innovative ways to connect and grow with us." />
-        <meta property="og:image" content="./assets/img/logo/banner/full-banner-nct.png" />
-        <meta property="og:url" content="https://www.nextcodetwo.be" />
-        <meta property="og:type" content="website"  />
-
-        <!-- Page title -->
-        <title>Portal | Next Code Two</title>
-
-        <!-- Description -->
-        <meta name="description" content="Next Code Two is a leading forwarding company offering technology guides and tailored solutions to optimize your operations. Discover innovative ways to connect and grow with us."/>
-        
-        <!-- Favicons -->
-        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="16x16" />
-        <link rel="apple-touch-icon" href="assets/favicon/favicon.png" type="image/png" sizes="16x16" />
-        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="32x32" />
-        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="48x48" />
-        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="64x64" />
-        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="96x96" />
-        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="128x128" />
-        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="192x192" />
-        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="256x256" />
-        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="384x384" />
-        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="512x512" />
-        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="1024x1024" />
-        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="2048x2048" />
-        <link rel="icon" href="assets/favicon/favicon.png" type="image/png" sizes="4096x4096" />
-        
-        <!-- Keywords -->
-        <meta name="keywords" content="Forwarding Experts, Technology Solutions, Innovative Technology, Business Optimization, Digital Transformation, Custom Software, Logistics Technology, Tailored Solutions; Tech Guides, Operational Efficiency, Cloud Solutions, Data Analytics, Automation Tools, IT Consulting, Next-Gen Technology"/>
-        
-        <!-- CSS Plugins -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css" />
-        <link rel="stylesheet" href="https://cdn.lineicons.com/4.0/lineicons.css" />
-        <link rel="stylesheet" href="../assets/css/main.css" />
-
-        <style>
-            /* Animation when menu open */
-                .menu-open span:nth-child(1) {
-                    transform: rotate(45deg) translate(5px, 5px);
-                }
-                .menu-open span:nth-child(2) {
-                    opacity: 0;
-                }
-                .menu-open span:nth-child(3) {
-                    transform: rotate(-45deg) translate(5px, -5px);
-                }
-        </style>
-    </head>
-    <body class="bg-white text-black dark:bg-[#021526] dark:text-white font-sans">
-    
-    <!-- Cookie Banner Modal -->
-    <div id="cookie-banner" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 text-gray-800">
-          <h2 class="text-lg font-semibold mb-2">Your Privacy Matters</h2>
-          <p class="text-sm mb-4">
-            We use cookies to personalize content, provide social media features, and analyze our traffic. Under the GDPR, we must ask for your consent before placing non-essential cookies. You can choose to accept or decline these.
-          </p>
-          <div class="flex justify-end gap-3">
-            <button onclick="declineCookies()" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
-              Decline
-            </button>
-            <button onclick="acceptCookies()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-              Accept
-            </button>
-          </div>
+function replyTicketHTML(ticketId, title, description, replies = []) {
+    const replySection = replies.map((reply, index) => `
+        <div class="border-l-4 border-blue-500 pl-4 py-2 mb-4 bg-blue-50 rounded">
+            <p class="font-semibold">Reply #${index + 1}:</p>
+            <p>${reply}</p>
         </div>
-      </div>
+    `).join('');
 
-    <body class="bg-white text-black dark:bg-[#021526] dark:text-white font-sans">
-    
- <!-- Original Navigation -->
-<nav class="bg-black/10 backdrop-blur-lg border-b border-white/20 dark:text-white fixed w-full z-50">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-        <a href="/" class="text-2xl font-bold">Portal | Next Code Two</a>
-
-        <!-- Mobile Menu Button -->
-        <button id="menu-btn" class="relative w-8 h-8 md:hidden text-black dark:text-white focus:outline-none">
-            <!-- Hamburger Icon -->
-            <svg id="hamburger-icon" class="absolute inset-0 w-8 h-8 transition-all duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-            </svg>
-            
-            <!-- X Icon -->
-            <svg id="close-icon" class="absolute inset-0 w-8 h-8 opacity-0 scale-75 transition-all duration-300 ease-in-out" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-            </svg>
-        </button>
-        
-        <!-- Desktop Menu -->
-        <div class="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
-            <a href="/" class="relative group">
-                <span class="transition">Home</span>
-                <span class="absolute left-1/2 -bottom-0.5 w-0 h-0.5 bg-indigo-400 transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
-            </a>
-            <a href="/home" class="relative group text-indigo-400">
-                <span class="transition">Customer Area</span>
-                <span class="absolute left-0 -bottom-0.5 w-full h-0.5 bg-indigo-400"></span>
-            </a>
-            <a href="https://www.nextcodetwo.be/contact" class="relative group">
-                <span class="transition">Contact</span>
-                <span class="absolute left-1/2 -bottom-0.5 w-0 h-0.5 bg-indigo-400 transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
-            </a>
-        </div>
-        
-        <!-- Get Started Button -->
-        <div class="hidden md:block">
-            <a href="/login" class="px-4 py-2 border-2 border-indigo-400 rounded-full hover:text-white hover:bg-indigo-400 transition duration-500">Login / Register</a>
-        </div>
-    </div>
-
-    <!-- Mobile Menu -->
-    <div id="menu" class="hidden md:hidden px-4 pb-4">
-        <a href="/" class="block py-2 hover:text-indigo-400">Home</a>
-        <a href="/home" class="block py-2 hover:text-indigo-400">Client Dashboard</a>
-        <a href="https://www.nextcodetwo.be/contact" class="block py-2 text-indigo-400">Contact</a>
-        <a href="/login" class="block w-full mt-2 px-4 py-2 border border-indigo-400 rounded-full text-center hover:bg-indigo-400 hover:text-white transition duration-500">Login / Register</a>
-    </div>
-</nav>
-<!-- End Navigation -->
-
-      <!-- Main Content Area -->
-    <main class="pt-20">
-
-        <!-- Hero Section -->
-        <section class="bg-gradient-to-b from-white to-gray-100 dark:from-[#021526] dark:to-[#031c33] py-20 px-4">
-            <div class="container mx-auto text-center">
-                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-indigo-500 dark:text-indigo-400">Customer Area</h1>
-                <p class="text-lg md:text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
-                    Welcome to the Customer Area of Next Code Two. Here you can manage your tickets, view your account details, and access our resources. If you have any questions, feel free to reach out to us!
-                </p>
-                <!-- View Tickets Button -->
-            <a href="/home/tickets" class="mt-8 inline-block px-6 py-3 text-white bg-indigo-500 hover:bg-indigo-600 rounded-lg text-lg transition duration-300">
-                View My Tickets
-            </a>
-            </div>
-        </section>
-        <!-- End Hero Section -->
-        
-<!-- Wavy Transition Divider -->
-<section class="hidden dark:block">
-    <div class="relative" style="z-index: 5;"> <!-- Negatieve marge trekt de golf omhoog -->
-        <div class="absolute inset-x-0 bottom-0 h-12 md:h-16 lg:h-20 text-white dark:text-gray-800"> <!-- Hoogte & Kleur matchen met About sectie -->
-            <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 100" preserveAspectRatio="none" fill="currentColor" aria-hidden="true">
-                <path d="M0,70 C360,120 1080,20 1440,70 L1440,100 L0,100 Z"></path> 
-            </svg>
-        </div>
-    </div>
-</section>
-<!-- End Wavy Transition Divider -->
-
-    
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-6">
-        <div class="container mx-auto px-4 text-center">
-            <!-- Copyright -->
-            <p class="text-sm text-gray-400">&copy; <script>document.write(new Date().getFullYear())</script>Portal | Next Code Two. All rights reserved.</p>
-
-            <!-- Social Media Links -->
-            <div class="mt-4 space-x-4">
-                <a href="https://www.linkedin.com/company/nextcodetwo" target="_blank" rel="noopener noreferrer" aria-label="Next Code Two on LinkedIn" class="text-gray-400 hover:text-indigo-400 transition duration-300">
-                    <i class="lni lni-linkedin-original text-xl"></i> <!-- Using Line Icons like in index3.html -->
-                </a>
-                <a href="https://www.facebook.com/nextcodetwo" target="_blank" rel="noopener noreferrer" aria-label="Next Code Two on Facebook" class="text-gray-400 hover:text-indigo-400 transition duration-300">
-                    <i class="lni lni-facebook-fill text-xl"></i>
-                </a>
-                <a href="https://www.instagram.com/nextcodetwo" target="_blank" rel="noopener noreferrer" aria-label="Next Code Two on Instagram" class="text-gray-400 hover:text-indigo-400 transition duration-300">
-                    <i class="lni lni-instagram-original text-xl"></i>
-                </a>
-                <!-- Add other social links as needed -->
-            </div>
-
-            <!-- Navigation Links -->
-            <nav class="mt-4 text-sm space-x-4 md:space-x-6">
-                <a href="https://www.nextcodetwo.be/privacy" class="text-gray-400 hover:text-indigo-400 transition duration-300">Privacy Policy</a>
-                <span class="text-gray-500">|</span>
-                <a href="https://www.nextcodetwo.be/terms" class="text-gray-400 hover:text-indigo-400 transition duration-300">Terms of Service</a>
-                <span class="text-gray-500">|</span>
-                <a href="https://www.nextcodetwo.be/contact" class="text-gray-400 hover:text-indigo-400 transition duration-300">Contact Us</a>
-                <span class="text-gray-500">|</span>
-                <a href="sitemap.xml" class="text-gray-400 hover:text-indigo-400 transition duration-300">Sitemap</a>
-            </nav>
-        </div>
-    </footer>
-    <!-- End Footer -->
-
-    <!-- Font Awesome for icons -->
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    <!-- Swiper JS -->
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    <!-- GLightbox JS -->
-    <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
-    <!-- Line Icons -->
-    <script src="https://cdn.lineicons.com/4.0/lineicons.js"></script>
-    <!-- Custom JS -->
-    <script src="./assets/js/main.js"></script>
-    <!-- Optional: Custom JavaScript for menu toggle -->
-    <script src="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.js"></script>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZWM5FDMGG5"></script>
-<script>
-
-    const menuBtn = document.getElementById('menu-btn');
-    const menu = document.getElementById('menu');
-    const hamburgerIcon = document.getElementById('hamburger-icon');
-    const closeIcon = document.getElementById('close-icon');
-
-    menuBtn.addEventListener('click', () => {
-      menu.classList.toggle('hidden');
-
-      if (menu.classList.contains('hidden')) {
-        // Show hamburger, hide X
-        hamburgerIcon.classList.remove('opacity-0', 'scale-75');
-        closeIcon.classList.add('opacity-0', 'scale-75');
-      } else {
-        // Show X, hide hamburger
-        hamburgerIcon.classList.add('opacity-0', 'scale-75');
-        closeIcon.classList.remove('opacity-0', 'scale-75');
-      }
-    });
-    function acceptCookies() {
-          localStorage.setItem("cookiesConsent", "accepted");
-          document.getElementById("cookie-banner").style.display = "none";
-        }
-
-        function declineCookies() {
-          localStorage.setItem("cookiesConsent", "declined");
-          document.getElementById("cookie-banner").style.display = "none";
-        }
-
-        // Hide banner if consent already given
-        if (localStorage.getItem("cookiesConsent")) {
-          document.getElementById("cookie-banner").style.display = "none";
-        }
-            
-  </script> 
-    `;
-}
-function replyTicketHTML(ticketId, title, description) {
     return `
         <!DOCTYPE html>
         <html lang="en">
@@ -1308,49 +1345,52 @@ function replyTicketHTML(ticketId, title, description) {
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Reply to Ticket</title>
-            <style>
-                body { font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333; }
-                .container { max-width: 900px; margin: auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
-                .header { font-size: 24px; margin-bottom: 20px; }
-                .btn { padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; }
-                .btn:hover { background-color: #0056b3; }
-                form button { padding: 10px 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; }
-                form button:hover { background-color: #218838; }
-                form input, form textarea { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; margin-bottom: 10px; }
-                form textarea { resize: vertical; height: 150px; }
-                .ticket-info { margin-bottom: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 5px; border: 1px solid #ddd; }
-            </style>
+            <script src="https://cdn.tailwindcss.com"></script>
         </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>Reply to Ticket</h1>
-                    <p>Replying to ticket ID: <strong>${ticketId}</strong></p>
+        <body class="bg-gray-100 text-gray-800">
+            <div class="max-w-4xl mx-auto mt-10 p-6 bg-white border-2 border-blue-500 rounded-xl shadow-md">
+                
+                <!-- Header -->
+                <div class="mb-6">
+                    <h1 class="text-3xl font-bold mb-2">Reply to Ticket</h1>
+                    <p class="text-gray-600">Replying to ticket ID: <strong>${ticketId}</strong></p>
                 </div>
 
-                <!-- Ticket Information Section -->
-                <div class="ticket-info">
-                    <h3 class="font-semibold text-lg">Ticket Details</h3>
+                <!-- Ticket Details -->
+                <div class="mb-6 p-4 bg-gray-50 border border-gray-300 rounded">
+                    <h2 class="text-xl font-semibold mb-2">Ticket Details</h2>
                     <p><strong>Title:</strong> ${title}</p>
                     <p><strong>Description:</strong> ${description}</p>
                 </div>
 
-                <!-- Admin Reply Form -->
-                <form action="/admin/tickets/reply" method="POST">
+                <!-- Previous Replies -->
+                <div class="mb-6 p-4 bg-gray-50 border border-gray-300 rounded">
+                    <h2 class="text-xl font-semibold mb-4">Previous Replies</h2>
+                    ${replies.length ? replySection : '<p class="text-gray-500 italic">No replies yet.</p>'}
+                </div>
+
+                <!-- Reply Form -->
+                <form action="/admin/tickets/reply" method="POST" class="space-y-4">
                     <input type="hidden" name="ticketId" value="${ticketId}">
                     
-                    <label for="message">Your Reply</label>
-                    <textarea id="message" name="message" required placeholder="Enter your reply here..."></textarea>
+                    <div>
+                        <label for="message" class="block font-medium">Your Reply</label>
+                        <textarea id="message" name="message" required placeholder="Enter your reply here..." class="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+                    </div>
 
-                    <button type="submit">Send Reply</button>
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg">Send Reply</button>
                 </form>
 
-                <a href="/admin/tickets" class="btn">Back to Dashboard</a>
+                <div class="mt-6">
+                    <a href="/admin/tickets" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">Back to Dashboard</a>
+                </div>
             </div>
         </body>
         </html>
     `;
 }
+
+
 function ErrorPageHTML(errorCode, errorTitle, errorMessage) {
     return `
         <!DOCTYPE html>
@@ -1469,6 +1509,44 @@ function userReplyTicketForm(ticketId) {
             </div>
         </form>
     </div>
+</body>
+</html>
+`;
+}
+function addticketformHTML() {
+    return `
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Ticket</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <div class="min-h-screen flex flex-col items-center justify-center py-12 px-6">
+        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+            <h1 class="text-3xl font-bold text-blue-600 mb-6 text-center">Add a New Ticket</h1>
+            <form action="/home/tickets/add-process" method="POST">
+                <div class="mb-4">
+                    <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                    <input type="title" id="title" name="title" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                </div>
+                
+                <div class="mb-4">
+                    <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea id="description" name="description" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4"></textarea>
+                </div>
+                
+                <div class="flex justify-center">
+                    <button type="submit" class="w-full py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Submit Ticket</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
 </body>
 </html>
 `;

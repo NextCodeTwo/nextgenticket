@@ -1,4 +1,8 @@
-<!DOCTYPE html>
+export function login(username = null, avatarUrl, isAdmin, GeneralConfig, indexConfig, AuthConfig) {
+    const isLoggedIn = username && avatarUrl;
+
+    return `
+    <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -70,7 +74,7 @@
     <!-- Login Form Section -->
     <section>
         <div class="flex min-h-screen flex-col justify-center items-center px-6 py-12 lg:px-8 text-white">
-            <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg sm:mx-auto sm:w-full sm:max-w-md">
+            <div class="bg-white text-black dark:bg-gray-800 p-8 rounded-2xl shadow-lg sm:mx-auto sm:w-full sm:max-w-md">
                 <!-- Logo and Title -->
                 <div>
                   <img class="mx-auto h-10 w-auto" src="https://www.nextcodetwo.be/assets/img/logo/transparant/transparant-nct.png" alt="NCT Logo">
@@ -81,7 +85,7 @@
                 </div>
                 <!-- Form -->
                 <div class="mt-8">
-                  <form class="space-y-6" action="/process" method="POST"> <!-- Ensure action points to your backend login handler -->
+                  <form class="space-y-6" action="/process" method="POST" onsubmit="return validateTurnstile()"> <!-- Ensure action points to your backend login handler -->
                     <!-- Email Input -->
                     <div>
                       <label for="email" class="block text-sm/6 font-medium text-gray-900 dark:text-white">Email address</label>
@@ -134,7 +138,7 @@
                     <!-- Submit Button -->
                     <div>
                       <button type="submit"
-                              class="flex w-full justify-center rounded-xl bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:hover:bg-indigo-400">
+                              class="flex w-full justify-center rounded-xl bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 dark:bg-indigo-500 dark:hover:bg-indigo-400">
                         Sign in
                       </button>
                     </div>
@@ -222,6 +226,17 @@
                 // Check Turnstile documentation if this doesn't update visually.
             }
         });
+</script>
+
+<script>
+function validateTurnstile() {
+  const response = turnstile.getResponse();
+  if (!response) {
+    alert("Please complete the CAPTCHA before signing in.");
+    return false;
+  }
+  return true;
+}
 function togglePassword() {
   const passwordField = document.getElementById("password");
   const eyeOpen = document.getElementById("eyeOpen");
@@ -241,3 +256,6 @@ function togglePassword() {
 
 </body>
 </html>
+
+    `
+}
